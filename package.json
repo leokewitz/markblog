@@ -17,7 +17,8 @@
     "coffee-script": "*"
   },
   "dependencies": {
-    "markdown": "^0.5.0"
+    "markdown": "^0.5.0",
+    "q": "^1.4.1"
   },
   "bugs": {
     "url": "https://github.com/leokewitz/markblog/issues"

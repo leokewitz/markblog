@@ -23,22 +23,17 @@ This is a dummy post.
 ```js
 var markblog = require('markblog');
 
-var post = markblog.read('./posts/post1.md');
-var lotofposts = markblog.readFolder('./posts');
+markblog.read('./posts/post1.md')
+    .then(function (post) {
+        console.log(post);
+    })
+    .catch(console.error);
 
-/* 
-  post = { 
-    title:'This is the post title.',
-    date: Date(2014-4-15),
-    body:
-      html: '<p>This is a dummy post.</p>',
-      markdown: 'This is a dummy post.'
-  }
-  
-  and
-
-  lotofposts == [post]
-*/
+markblog.readDir('./posts/')
+    .then(function (posts) {
+        console.log(posts);
+    })
+    .catch(console.error);
 ```
 
 ## License
