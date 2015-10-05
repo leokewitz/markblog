@@ -1,11 +1,11 @@
 ###
-                                         _   _    _            
-                                        | | | |  | |           
-                  _  _  _    __,   ,_   | | | |  | |  __   __, 
-                 / |/ |/ |  /  |  /  |  |/_)|/ \_|/  /  \_/  | 
+                                         _   _    _
+                                        | | | |  | |
+                  _  _  _    __,   ,_   | | | |  | |  __   __,
+                 / |/ |/ |  /  |  /  |  |/_)|/ \_|/  /  \_/  |
                    |  |  |_/\_/|_/   |_/| \_/\_/ |__/\__/ \_/|/
-                                                            /| 
-                                                            \| 
+                                                            /|
+                                                            \|
 
 The MIT License (MIT)
 
@@ -32,6 +32,9 @@ SOFTWARE.
 
 fs = require 'fs'
 path = require 'path'
+Q = require 'q'
+fs_readFile = Q.denodeify fs.readFile
+fs_readdir = Q.denodeify fs.readdir
 markdown = require('markdown').markdown
 
 Markblog =
@@ -41,22 +44,26 @@ Markblog =
 		post =
 			title: parse[1]
 			date: new Date parse[2]
-			body: 
+			body:
 				html: markdown.toHTML parse[3]
 				markdown: parse[3]
 
 	# Read Markdown file.
 	read: (file) ->
-		return file + " does not exist." unless fs.existsSync file
-		stat = fs.statSync file
-		return file + " is not a file." unless stat.isFile()
-		
-		md = fs.readFileSync(file).toString()
-		post = @compile md
+        fs_readFile file
+            .then (data) ->
+                md = data.toString()
+                post = Markblog.compile md
 
 	# Return all posts compiled.
-	readFolder: (folder) ->
-		files = (path.join folder, file for file in fs.readdirSync folder)
-		(@read file for file in files when file.match /\.md/)
+	readDir: (dir) ->
+        fs_readdir (dir)
+            .then (files) ->
+                promises = files.filter (file) ->
+                    file.match /.md/
+                .map (file) ->
+                    Markblog.read path.join dir, file
+                Q.all(promises).then (posts) ->
+                    posts
 
 module.exports = Markblog
